@@ -1,0 +1,32 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Build') {
+            steps {
+                sh 'go build -v ./...'
+            }
+        }
+        stage('Test') {
+            steps {
+                sh 'go test -v ./...'
+            }
+        }
+        stage('Docker Build') {
+            steps {
+                script {
+                    docker.build('your-backend-image-name')
+                }
+            }
+        }
+        stage('Deploy') {
+            steps {
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-credentials') {
+                        docker.image('your-backend-image-name').push('latest')
+                    }
+                }
+            }
+        }
+    }
+}
